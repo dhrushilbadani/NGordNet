@@ -12,3 +12,5 @@ Key things investigated in this project:
 -> The length of words.
 
 -> Zipf's law.
+
+For usage details, please refer to: https://berkeley-cs61b.github.io/public_html/materials/proj/proj1/proj1.html
