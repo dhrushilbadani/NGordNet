@@ -1,0 +1,110 @@
+/* Starter code for NgordnetUI (part 7 of the project). Rename this file and 
+   remove this comment. */
+
+package ngordnet;
+import edu.princeton.cs.introcs.StdIn;
+import edu.princeton.cs.introcs.In;
+
+/** Provides a simple user interface for exploring WordNet and NGram data.
+ *  @author Dhrushil Badani
+ */
+public class NgordnetUI {
+    public static void main(String[] args) {
+        In in = new In("./ngordnet/ngordnetui.config");
+        System.out.println("Reading ngordnetui.config...");
+
+        String wordFile = in.readString();
+        String countFile = in.readString();
+        String synsetFile = in.readString();
+        String hyponymFile = in.readString();
+        System.out.println("\nBased on ngordnetui.config, using the following: "
+                           + wordFile + ", " + countFile + ", " + synsetFile +
+                           ", and " + hyponymFile + ".");
+
+        System.out.println("\nFor tips on implementing NgordnetUI, see ExampleUI.java.");
+        int startDate=0, endDate=0;
+        while (true) {
+            System.out.print("> ");
+            String line = StdIn.readLine();
+            String[] rawTokens = line.split(" ");
+            String command = rawTokens[0];
+            String[] tokens = new String[rawTokens.length - 1];
+            System.arraycopy(rawTokens, 1, tokens, 0, rawTokens.length - 1);
+            switch (command) {
+                case "quit": 
+                    return;
+                case "help":
+                    In in = new In("help.txt");
+                    String helpStr = in.readAll();
+                    System.out.println(helpStr);
+                    break;  
+                case "range": 
+                    try{
+                    startDate = Integer.parseInt(tokens[0]); 
+                    endDate = Integer.parseInt(tokens[1]);
+                    System.out.println("Start date: " + startDate);
+                    System.out.println("End date: " + endDate);
+                    }
+                    catch (Exception e) {
+                      System.out.println("Invalid input");
+                    }
+                    break;
+                case "count":
+                    NGramMap ngm = new NGramMap(wordFile,countFile);
+                    try
+                    {
+                      YearlyRecord yr = new YearlyRecord(Integer.parseInt(tokens[1]));
+                    System.out.println(yr.count(tokens[2])+"\n");
+                    }
+                    catch (Exception e) {
+                      System.out.println("Invalid year/word.")
+                    }
+                    break;
+                case "hyponyms":
+                    WordNet wn = new WordNet(synsetFile,hyponymFile);
+                    if (wn.isNoun(tokens[0])) {
+                    String s = "[";
+                    for (String word: wn.hyponyms(tokens[0])) {
+                      s=s+word+", ";
+                      }
+                    s=s.substring(0,s.length()-2)+"]";
+                    System.out.println(s+"\n");
+                    }
+
+                    else {
+                      System.out.println("Word does not exist");
+                    }
+                    break;
+                case "history":
+                    if (startDate==0 || endDate==0) {
+                      System.out.println("Invalid start/end date");
+                    }
+                    NGramMap ngm = new NGramMap(wordFile,countFile);
+                    try{
+                      Plotter.plotAllWords(ngm, tokens, startDate, endDate);
+                    }
+                    catch (Exception e) {
+                      System.out.println("Invalid input");
+                    }
+                    break;
+                case "hypohist":
+                    if (startDate==0 || endDate==0) {
+                      System.out.println("Invalid start/end date");
+                    }
+                    NGramMap ngm = new NGramMap(wordFile,countFile);
+                    WordNet wn = new WordNet(synsetFile,hyponymFile);
+                    try{
+                      Plotter.plotCategoryWeights(ngm, wn, tokens, startDate, endDate);
+                    }
+                    catch (Exception e) {
+                      System.out.println("Invalid input");
+                    }
+                    break;
+                default:
+                    System.out.println("Invalid command.");  
+                    break;
+            }
+        }
+
+    }
+} 
